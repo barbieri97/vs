@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VS | HOME</title>
+</head>
+<body>
+    <h1>Vetor Simulator</h1>
+    <h2>Faça o login</h2>
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form action="/login" method="post">
+        <label for="user">User</label>
+        <input type="text" name="user" id="user">
+        <label for="pass">password</label>
+        <input type="text" name="pass" id="pass">
+        <button type="submit">Enviar</button>
+    </form>
+</body>
+</html>
