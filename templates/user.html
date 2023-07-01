@@ -8,7 +8,14 @@
 <body>
     <h1>Hello {{ user }}</h1>
     {% for item in licensas %}
-    <h2>{{ item }} - token</h2>
+    <h2>{{ item }}</h2>
     {% endfor %}
+    <form action="/api/buy" method="post">
+        <input type="hidden" name="token" value="136576357465">
+        <button type="submit">buy new</button>
+        {% if error %}
+        <p style="color: red;">{{error}}</p>
+        {% endif %}
+    </form>
 </body>
 </html>
