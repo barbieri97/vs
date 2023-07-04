@@ -1,6 +1,19 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 from random import randrange
+
+import json
+
+def auth(username, senha):
+    data = None
+    with open("users.json", "r+") as file:
+        _data = json.load(file)
+        data = _data.get('users')
+    for i in data:
+        if i.get('username') == username and i.get('senha') == senha:
+            return {"username": username, "tokens": i.get("tokens"), "status": True}
+        else:
+            return {"status": False}
 
 app = Flask(__name__)
 
@@ -34,50 +47,74 @@ def user():
         return redirect(url_for('index'))
 
 
-@app.route('/api/token')
-def token():
-    cookie = request.cookies.get("auth")
-    if cookie == '1':
-        js = {
-            'token': '136576357465'
-        }
-        return js
+@app.route('/api/login', methods=["POST"])
+def api_login():
+    username = request.form.get("username")
+    senha = request.form.get("senha")
+    l = auth(username, senha)
+    if l["status"]:
+        return jsonify({"message": "succes", "username": l["username"], "tokens": l["tokens"]})
     else:
-        return redirect(url_for('index'))
-
-@app.route('/api/user')
-def api_user():
-    user = request.cookies.get('name')
-    if request.args.get('token') == '136576357465':
-        with open('licensas.txt', 'r') as f:
-            _licensas = f.readlines()
-            licensas = [i.strip() for i in _licensas]
-        return {'user': user, 'licensas': licensas}
-    else:
-        return redirect(url_for('index'))
+        return jsonify({"message": "cant do the login"})
 
 @app.route('/api/buy', methods=['POST'])
 def buy():
-    token = request.form.get('token')
-    if token == '136576357465':
+    username = request.form.get("username")
+    senha = request.form.get("senha")
+    l = auth(username, senha)
+    if l['status']:
         new_token = randrange(100000, 999999)
-        with open('licensas.txt', '+a') as file:
-            file.write(f'{str(new_token)}\n')
-        return redirect(url_for('user'))
+        with open("users.json", "r+") as file:
+            _data = json.load(file)
+            data = _data.get('users')
+            for i in data:
+                if i.get('username') == username and i.get('senha') == senha:
+                    i['tokens'].append(new_token)
+            _data['users'] = data
+            file.truncate(0)
+            file.seek(0)
+            json.dump(_data, file, indent=4)
+            return jsonify(i)
     else:
-        return render_template('user.html', error='não foi possivel gerar novo token')
+        return jsonify({'message': "user not found"})
 
 @app.route('/api/pay', methods=['POST'])
 def pay():
-    token = request.form.get('token')
-    if token == '136576357465':
-        new_token = randrange(100000, 999999)
-        with open('licensas.txt', 'r+') as file:
-            token = file.readlines()
-            _ = token.pop()
+    username = request.form.get("username")
+    senha = request.form.get("senha")
+    l = auth(username, senha)
+    if l['status']:
+        with open("users.json", "r+") as file:
+            _data = json.load(file)
+            data = _data.get('users')
+            for i in data:
+                if i.get('username') == username and i.get('senha') == senha:
+                    if len(i["tokens"]) == 0:
+                        return jsonify({"message": "user has no token"})
+                    _ = i['tokens'].pop()
+            _data['users'] = data
             file.truncate(0)
             file.seek(0)
-            file.writelines(token)
-        return {'status': "succes"}
+            json.dump(_data, file, indent=4)
+            return jsonify(i)
     else:
-        return render_template('user.html', error='não foi possivel gerar novo token')
+        return jsonify({'message': "user not found"})
+    
+@app.route('/api/add', methods=["POST"])
+def api_add():
+    username = request.form.get("username")
+    senha = request.form.get("senha")
+    l = auth(username, senha)
+    if l['status']:
+        return jsonify({'message': "user alredy exist"})
+    else:
+        with open("users.json", "r+") as file:
+            _data = json.load(file)
+            data = _data.get('users')
+            new_user = {"username": username, "senha": senha, "tokens": []}
+            data.append(new_user)
+            _data['users'] = data
+            file.truncate(0)
+            file.seek(0)
+            json.dump(_data, file, indent=4)
+            return jsonify(new_user)

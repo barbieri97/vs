@@ -1,0 +1,14 @@
+{
+    "users": [
+        {
+            "username": "admin",
+            "senha": "123",
+            "tokens": []
+        },
+        {
+            "username": "andre",
+            "senha": "jkl",
+            "tokens": []
+        }
+    ]
+}
