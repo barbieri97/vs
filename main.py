@@ -70,11 +70,11 @@ def buy():
             for i in data:
                 if i.get('username') == username and i.get('senha') == senha:
                     i['tokens'].append(new_token)
-            _data['users'] = data
-            file.truncate(0)
-            file.seek(0)
-            json.dump(_data, file, indent=4)
-            return jsonify(i)
+                    _data['users'] = data
+                    file.truncate(0)
+                    file.seek(0)
+                    json.dump(_data, file, indent=4)
+                    return jsonify(i)
     else:
         return jsonify({'message': "user not found"})
 
@@ -92,11 +92,11 @@ def pay():
                     if len(i["tokens"]) == 0:
                         return jsonify({"message": "user has no token"})
                     _ = i['tokens'].pop()
-            _data['users'] = data
-            file.truncate(0)
-            file.seek(0)
-            json.dump(_data, file, indent=4)
-            return jsonify(i)
+                    _data['users'] = data
+                    file.truncate(0)
+                    file.seek(0)
+                    json.dump(_data, file, indent=4)
+                    return jsonify(i)
     else:
         return jsonify({'message': "user not found"})
     
