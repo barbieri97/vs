@@ -9,11 +9,11 @@ def auth(username, senha):
     with open("users.json", "r+") as file:
         _data = json.load(file)
         data = _data.get('users')
+
     for i in data:
         if i.get('username') == username and i.get('senha') == senha:
             return {"username": username, "tokens": i.get("tokens"), "status": True}
-        else:
-            return {"status": False}
+    return {"status": False}
 
 app = Flask(__name__)
 
@@ -67,7 +67,9 @@ def buy():
         with open("users.json", "r+") as file:
             _data = json.load(file)
             data = _data.get('users')
+            # print(data)
             for i in data:
+                print(i)
                 if i.get('username') == username and i.get('senha') == senha:
                     i['tokens'].append(new_token)
                     _data['users'] = data
